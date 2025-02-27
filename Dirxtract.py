@@ -118,7 +118,7 @@ class OutputDialog(QDialog):
                 QMessageBox.critical(self, "Error", f"Failed to save file tree:\n{e}")
 
 class ExportOutputDialog(QDialog):
-    """Dialog to display the exported file tree with file contents."""
+    """Dialog to display the exported file tree with file contents and a character count."""
     def __init__(self, tree_text, file_contents, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Exported File Tree with Contents")
@@ -130,20 +130,20 @@ class ExportOutputDialog(QDialog):
         self.text_edit = QTextEdit()
         self.text_edit.setReadOnly(True)
 
-        # Added separator at the start
-        self.text_edit.insertPlainText("-----------------------------\n")
-
-        # Insert tree structure text first
-        self.text_edit.insertPlainText(tree_text + "\n\n")
-        
-        # Append file contents with relative path markers
+        # Build export text
+        export_text = "-----------------------------\n"
+        export_text += tree_text + "\n\n"
         for rel_path, content in file_contents.items():
-            self.text_edit.insertPlainText(f"<{rel_path}>\n{content}\n</{rel_path}>\n\n")
-
-        # Added separator at the end
-        self.text_edit.insertPlainText("-----------------------------\n")
-
+            export_text += f"<{rel_path}>\n{content}\n</{rel_path}>\n\n"
+        export_text += "-----------------------------\n"
+        self.text_edit.setPlainText(export_text)
         layout.addWidget(self.text_edit)
+        
+        # Add a status bar with the character count
+        char_count = len(export_text)
+        self.status_label = QLabel(f"Character Count: {char_count}")
+        self.status_label.setStyleSheet("padding: 4px; background-color: #f0f0f0; border: 1px solid #ccc;")
+        layout.addWidget(self.status_label)
         
         buttons = QDialogButtonBox()
         self.copy_button = buttons.addButton("Copy to Clipboard", QDialogButtonBox.ActionRole)
